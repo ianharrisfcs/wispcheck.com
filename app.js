@@ -10,31 +10,16 @@ const questions=[
 {cat:'Risk & Oversight',context:'Documented risk assessment and review of material security changes.',q:'Do you periodically assess security risks and document material findings?',target:'Audit Target: Risk assessment and ongoing program review',choices:['Yes, risks are reviewed and findings are documented','Reviews occur informally or without consistent documentation','No regular risk assessment is performed'],guideline:'A security program should change when the business, technology, or threat environment changes.'},
 {cat:'Risk & Vendors',context:'Third-party access, vendor oversight, and service-provider risk.',q:'Do you review key service providers that handle or can access sensitive client information?',target:'Audit Target: Service-provider oversight and vendor safeguards',choices:['Yes, key vendors are reviewed and security expectations are documented','Some vendors are reviewed, but the process is inconsistent','No formal vendor security review is performed'],guideline:'Third-party providers are part of the firm’s security exposure and should be evaluated when they handle or access sensitive information.'}
 ];
-
 const form=document.getElementById('assessmentForm');
-const intro=form?.previousElementSibling;if(intro) intro.style.display='none';
 let current=0;const answers=Array(questions.length).fill(null);
-
 function render(){
- const item=questions[current];
+ if(!form)return; const item=questions[current];
  form.className='assessment-form diagnostic-form';
- form.innerHTML=`
- <div class="assess-top"><div><span class="category-pill">${item.cat}</span><span class="qcount">Question ${current+1} of ${questions.length}</span></div><div class="assess-tools"><button type="button" class="textbtn" data-clear>↻ Clear</button><a href="/" class="textbtn">Exit Diagnostic</a></div></div>
- <div class="progress"><span style="width:${((current+1)/questions.length)*100}%"></span></div>
- <div class="context-box"><small>Category Context:</small><strong>${item.context}</strong></div>
- <h2 class="assessment-question">${item.q}</h2>
- <div class="audit-target">◉&nbsp; ${item.target}</div>
- <div class="answer-list">${item.choices.map((c,i)=>`<label class="answer-row"><span>${c}</span><input type="radio" name="answer" value="${2-i}" ${answers[current]===2-i?'checked':''}><i></i></label>`).join('')}</div>
- <div class="guideline"><b>?</b><div><strong>Compliance Guideline:</strong><p>${item.guideline}</p></div></div>
- <div class="assessment-nav"><button type="button" class="backbtn" ${current===0?'disabled':''}>← Back</button><button type="button" class="nextbtn" disabled>${current===questions.length-1?'Generate Report':'Next Question  →'}</button></div>
- <div class="privacy-note">🔒 <strong>Your Privacy Matters:</strong> Answers are only stored temporarily in your local web browser. No data is transmitted to external servers or logged permanently until you actively request consultation support.</div>`;
- const radios=[...form.querySelectorAll('input[name=answer]')]; const next=form.querySelector('.nextbtn');
- radios.forEach(r=>r.addEventListener('change',()=>{answers[current]=Number(r.value);next.disabled=false;}));
- if(answers[current]!==null) next.disabled=false;
- form.querySelector('.backbtn').addEventListener('click',()=>{if(current>0){current--;render();}});
- next.addEventListener('click',()=>{if(answers[current]===null)return;if(current<questions.length-1){current++;render();window.scrollTo({top:document.getElementById('assessment').offsetTop-45,behavior:'smooth'});}else{localStorage.setItem('wispcheckResults',JSON.stringify({answers,created:new Date().toISOString()}));location.href='/report/';}});
+ form.innerHTML=`<div class="assess-top"><div><span class="category-pill">${item.cat}</span><span class="qcount">Question ${current+1} of ${questions.length}</span></div><div class="assess-tools"><button type="button" class="textbtn" data-clear>↻ Clear</button><a href="/" class="textbtn">Exit Diagnostic</a></div></div><div class="progress"><span style="width:${((current+1)/questions.length)*100}%"></span></div><div class="context-box"><small>Category Context:</small><strong>${item.context}</strong></div><h2 class="assessment-question">${item.q}</h2><div class="audit-target">◉&nbsp; ${item.target}</div><div class="answer-list">${item.choices.map((c,i)=>`<label class="answer-row"><span>${c}</span><input type="radio" name="answer" value="${2-i}" ${answers[current]===2-i?'checked':''}><i></i></label>`).join('')}</div><div class="guideline"><b>?</b><div><strong>Compliance Guideline:</strong><p>${item.guideline}</p></div></div><div class="assessment-nav"><button type="button" class="backbtn" ${current===0?'disabled':''}>← Back</button><button type="button" class="nextbtn" disabled>${current===questions.length-1?'Generate Report  →':'Next Question  →'}</button></div><div class="privacy-note">🔒 <strong>Your Privacy Matters:</strong> Answers are only stored temporarily in your local web browser. No data is transmitted to external servers or logged permanently until you actively request consultation support.</div>`;
+ const radios=[...form.querySelectorAll('input[name=answer]')],next=form.querySelector('.nextbtn');
+ radios.forEach(r=>r.addEventListener('change',()=>{answers[current]=Number(r.value);next.disabled=false;})); if(answers[current]!==null)next.disabled=false;
+ form.querySelector('.backbtn').addEventListener('click',()=>{if(current>0){current--;render();window.scrollTo({top:0,behavior:'smooth'});}});
+ next.addEventListener('click',()=>{if(answers[current]===null)return;if(current<questions.length-1){current++;render();window.scrollTo({top:0,behavior:'smooth'});}else{localStorage.setItem('wispcheckResults',JSON.stringify({answers,created:new Date().toISOString()}));location.href='/report/';}});
  form.querySelector('[data-clear]').addEventListener('click',()=>{answers.fill(null);current=0;render();});
 }
-
-if(form) render();
-const year=document.getElementById('year');if(year)year.textContent=new Date().getFullYear();
+render();
