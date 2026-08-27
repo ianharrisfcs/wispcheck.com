@@ -1,29 +1,40 @@
 const questions=[
-{cat:'WISP Foundation',q:'Do you maintain a written, customized WISP for the firm?',why:'A written plan should reflect the real business, assigned responsibilities, and current safeguards.'},
-{cat:'WISP Foundation',q:'Is a specific person assigned to coordinate and review the security program?',why:'Ownership matters. Someone should be responsible for maintaining and updating the program.'},
-{cat:'Administrative',q:'Do staff receive recurring security-awareness and phishing training?',why:'Employees handling taxpayer information need practical training and reinforcement.'},
-{cat:'Access',q:'Is MFA enforced for email and other systems that access taxpayer information?',why:'MFA materially reduces account-takeover risk and is a core access safeguard.'},
-{cat:'Technical',q:'Are firm-managed endpoints monitored, patched, and protected by managed security tools?',why:'Endpoints remain a major access path to sensitive data and need active maintenance.'},
-{cat:'Technical',q:'Is sensitive data protected with encryption where appropriate, including portable devices?',why:'Lost or stolen devices should not expose readable taxpayer data.'},
-{cat:'Recovery',q:'Do you maintain tested backups for critical business and client data?',why:'Backups should support actual recovery, not merely exist.'},
-{cat:'Administrative',q:'Do you have documented onboarding, offboarding, and access-removal procedures?',why:'Old or excessive access creates unnecessary risk.'},
-{cat:'Risk & Vendors',q:'Do you periodically assess security risks and document material findings?',why:'A security program should change when the business, technology, or threats change.'},
-{cat:'Risk & Vendors',q:'Do you review key service providers that handle or can access sensitive client information?',why:'Vendor access and outsourced services are part of the firm’s security exposure.'}
+{cat:'WISP Foundation',context:'Core written plan existence, annual updates, and compliance alignment.',q:'Do you have a formally documented Written Information Security Plan (WISP) active for your tax practice?',target:'Audit Target: IRS Pub 5708 Section 1 & FTC Safeguards Rule § 314.4(a)',choices:['Yes, we have a fully documented and active WISP','In Progress (We have a draft, but it is not finalized or active)','No, we do not have a written security plan'],guideline:'The IRS requires all professional tax preparers to have a written security plan. This is a primary audit checkpoint.'},
+{cat:'WISP Foundation',context:'Program ownership, assigned responsibility, and periodic review.',q:'Is a specific person formally assigned to coordinate and maintain your information security program?',target:'Audit Target: WISP ownership and security coordinator responsibility',choices:['Yes, ownership is formally assigned and documented','Partially — someone handles it, but the responsibility is not well documented','No, no one is formally assigned'],guideline:'A security program needs a clearly responsible coordinator who maintains the plan and tracks required safeguards.'},
+{cat:'Administrative Controls',context:'Employee awareness, training, and documented security practices.',q:'Do employees receive recurring security awareness and phishing training?',target:'Audit Target: Employee training and security awareness safeguards',choices:['Yes, recurring training and testing are in place','Some training occurs, but it is inconsistent or informal','No recurring security training is provided'],guideline:'Training should be recurring and documented, especially for employees and seasonal staff who handle taxpayer information.'},
+{cat:'Access Controls',context:'Identity protection and strong authentication for sensitive systems.',q:'Is multi-factor authentication enforced for email and other systems that access taxpayer information?',target:'Audit Target: MFA and access-control safeguards',choices:['Yes, MFA is enforced on all relevant systems','MFA is enabled on some systems, but not consistently','No, MFA is not broadly enforced'],guideline:'MFA materially reduces account-takeover risk and should protect systems used to access sensitive taxpayer information.'},
+{cat:'Technical Safeguards',context:'Endpoint protection, patching, monitoring, and device security.',q:'Are firm-managed computers actively monitored, patched, and protected by managed security tools?',target:'Audit Target: Endpoint security and maintenance controls',choices:['Yes, endpoints are centrally managed, patched, and protected','Some controls exist, but management is incomplete or inconsistent','No, endpoints are largely unmanaged'],guideline:'Endpoints are a primary access path to taxpayer data and need active maintenance, security protection, and visibility.'},
+{cat:'Technical Safeguards',context:'Encryption and protection of sensitive data on devices and in transit.',q:'Is sensitive data encrypted where appropriate, including portable devices that may store or access taxpayer information?',target:'Audit Target: Encryption and data-protection safeguards',choices:['Yes, encryption is implemented and verified where appropriate','Partially — some systems or devices are encrypted','No, encryption is not consistently implemented'],guideline:'Encryption helps prevent lost or stolen devices from exposing readable taxpayer information.'},
+{cat:'Recovery',context:'Backup integrity, recoverability, and continuity of critical systems.',q:'Do you maintain tested backups for critical business and client data?',target:'Audit Target: Backup, recovery, and resiliency controls',choices:['Yes, backups are maintained and recovery is tested','Backups exist, but recovery testing is limited or uncertain','No reliable tested backup process is in place'],guideline:'Backups should support actual recovery. A backup that has never been tested may not be a usable recovery plan.'},
+{cat:'Administrative Controls',context:'Account lifecycle, access removal, and staff changes.',q:'Do you have documented onboarding, offboarding, and access-removal procedures?',target:'Audit Target: User lifecycle and access termination controls',choices:['Yes, documented procedures are consistently followed','Some procedures exist, but they are informal or incomplete','No documented process exists'],guideline:'Access should be granted intentionally and removed promptly when staff leave or change roles.'},
+{cat:'Risk & Oversight',context:'Documented risk assessment and review of material security changes.',q:'Do you periodically assess security risks and document material findings?',target:'Audit Target: Risk assessment and ongoing program review',choices:['Yes, risks are reviewed and findings are documented','Reviews occur informally or without consistent documentation','No regular risk assessment is performed'],guideline:'A security program should change when the business, technology, or threat environment changes.'},
+{cat:'Risk & Vendors',context:'Third-party access, vendor oversight, and service-provider risk.',q:'Do you review key service providers that handle or can access sensitive client information?',target:'Audit Target: Service-provider oversight and vendor safeguards',choices:['Yes, key vendors are reviewed and security expectations are documented','Some vendors are reviewed, but the process is inconsistent','No formal vendor security review is performed'],guideline:'Third-party providers are part of the firm’s security exposure and should be evaluated when they handle or access sensitive information.'}
 ];
+
 const form=document.getElementById('assessmentForm');
-questions.forEach((item,i)=>{
- const wrap=document.createElement('div'); wrap.className='question';
- wrap.innerHTML=`<span class="eyebrow">${item.cat}</span><strong>${i+1}. ${item.q}</strong><div class="choices">
- <span class="choice"><input required type="radio" id="q${i}y" name="q${i}" value="2"><label for="q${i}y">Yes</label></span>
- <span class="choice"><input type="radio" id="q${i}p" name="q${i}" value="1"><label for="q${i}p">Partly / Unsure</label></span>
- <span class="choice"><input type="radio" id="q${i}n" name="q${i}" value="0"><label for="q${i}n">No</label></span></div>`;
- form.appendChild(wrap);
-});
-const submit=document.createElement('button');submit.className='btn primary submit';submit.type='submit';submit.textContent='Generate My Gap Report';form.appendChild(submit);
-form.addEventListener('submit',e=>{
- e.preventDefault();
- const answers=questions.map((_,i)=>Number(new FormData(form).get(`q${i}`)));
- localStorage.setItem('wispcheckResults',JSON.stringify({answers,created:new Date().toISOString()}));
- location.href='/report/';
-});
-document.getElementById('year').textContent=new Date().getFullYear();
+const intro=form?.previousElementSibling;if(intro) intro.style.display='none';
+let current=0;const answers=Array(questions.length).fill(null);
+
+function render(){
+ const item=questions[current];
+ form.className='assessment-form diagnostic-form';
+ form.innerHTML=`
+ <div class="assess-top"><div><span class="category-pill">${item.cat}</span><span class="qcount">Question ${current+1} of ${questions.length}</span></div><div class="assess-tools"><button type="button" class="textbtn" data-clear>↻ Clear</button><a href="/" class="textbtn">Exit Diagnostic</a></div></div>
+ <div class="progress"><span style="width:${((current+1)/questions.length)*100}%"></span></div>
+ <div class="context-box"><small>Category Context:</small><strong>${item.context}</strong></div>
+ <h2 class="assessment-question">${item.q}</h2>
+ <div class="audit-target">◉&nbsp; ${item.target}</div>
+ <div class="answer-list">${item.choices.map((c,i)=>`<label class="answer-row"><span>${c}</span><input type="radio" name="answer" value="${2-i}" ${answers[current]===2-i?'checked':''}><i></i></label>`).join('')}</div>
+ <div class="guideline"><b>?</b><div><strong>Compliance Guideline:</strong><p>${item.guideline}</p></div></div>
+ <div class="assessment-nav"><button type="button" class="backbtn" ${current===0?'disabled':''}>← Back</button><button type="button" class="nextbtn" disabled>${current===questions.length-1?'Generate Report':'Next Question  →'}</button></div>
+ <div class="privacy-note">🔒 <strong>Your Privacy Matters:</strong> Answers are only stored temporarily in your local web browser. No data is transmitted to external servers or logged permanently until you actively request consultation support.</div>`;
+ const radios=[...form.querySelectorAll('input[name=answer]')]; const next=form.querySelector('.nextbtn');
+ radios.forEach(r=>r.addEventListener('change',()=>{answers[current]=Number(r.value);next.disabled=false;}));
+ if(answers[current]!==null) next.disabled=false;
+ form.querySelector('.backbtn').addEventListener('click',()=>{if(current>0){current--;render();}});
+ next.addEventListener('click',()=>{if(answers[current]===null)return;if(current<questions.length-1){current++;render();window.scrollTo({top:document.getElementById('assessment').offsetTop-45,behavior:'smooth'});}else{localStorage.setItem('wispcheckResults',JSON.stringify({answers,created:new Date().toISOString()}));location.href='/report/';}});
+ form.querySelector('[data-clear]').addEventListener('click',()=>{answers.fill(null);current=0;render();});
+}
+
+if(form) render();
+const year=document.getElementById('year');if(year)year.textContent=new Date().getFullYear();
