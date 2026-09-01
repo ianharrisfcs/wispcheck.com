@@ -1,30 +1,34 @@
 const questions=[
-{cat:'WISP Foundation',q:'Written, customized WISP',why:'Maintain a current written plan tied to the real firm and its safeguards.'},
-{cat:'WISP Foundation',q:'Assigned security coordinator',why:'Assign clear ownership for maintaining and reviewing the program.'},
-{cat:'Administrative',q:'Security-awareness training',why:'Train staff regularly on phishing, sensitive data handling, and security procedures.'},
-{cat:'Access',q:'MFA enforced',why:'Require MFA for email and systems that access taxpayer information.'},
-{cat:'Technical',q:'Managed endpoint security',why:'Keep endpoints patched, monitored, and protected with managed security controls.'},
-{cat:'Technical',q:'Encryption',why:'Protect sensitive data on portable devices and other applicable systems.'},
-{cat:'Recovery',q:'Tested backups',why:'Maintain backups that can actually restore critical data and operations.'},
-{cat:'Administrative',q:'Onboarding and offboarding',why:'Remove old access and control new access through repeatable procedures.'},
-{cat:'Risk & Vendors',q:'Documented risk assessment',why:'Periodically reassess risks and record material findings and decisions.'},
-{cat:'Risk & Vendors',q:'Vendor oversight',why:'Review key providers that handle or can access sensitive client information.'}
+{cat:'Program Foundation',q:'Current customized WISP',why:'Maintain a current written plan tied to the real firm and its safeguards.',evidence:'Current WISP document, approval/review date, revision history.',priority:'high'},
+{cat:'Program Foundation',q:'Designated Qualified Individual / coordinator',why:'Assign clear ownership for maintaining and reviewing the program.',evidence:'Named responsible person, role description, written assignment.',priority:'high'},
+{cat:'Risk & Inventory',q:'Written risk assessment',why:'Identify foreseeable threats, evaluate existing safeguards, and document treatment decisions.',evidence:'Written risk assessment, risk register, review date and mitigation decisions.',priority:'high'},
+{cat:'Risk & Inventory',q:'Data, systems and device inventory',why:'Know where sensitive information lives and who or what can access it.',evidence:'Inventory of devices, systems, applications, data locations and authorized users.',priority:'high'},
+{cat:'Identity & Access',q:'MFA enforced',why:'Require MFA for email and systems that access taxpayer information.',evidence:'Identity-provider settings, screenshots/configuration exports, MFA coverage report.',priority:'critical'},
+{cat:'Identity & Access',q:'Periodic access review',why:'Remove permissions that no longer have a legitimate business need.',evidence:'Access review checklist, user/role reports, documented review cadence.',priority:'high'},
+{cat:'Identity & Access',q:'Onboarding, role-change and offboarding',why:'Control new access and remove old access through repeatable procedures.',evidence:'Onboarding/offboarding checklist, disabled-account records, role-change procedure.',priority:'high'},
+{cat:'Technical',q:'Managed endpoint security and patching',why:'Keep endpoints patched, monitored and protected with managed security controls.',evidence:'Device inventory, patch compliance report, endpoint protection status.',priority:'critical'},
+{cat:'Technical',q:'Encryption',why:'Protect sensitive data at rest and in transit where appropriate.',evidence:'Full-disk encryption status, secure transmission settings, documented exceptions.',priority:'high'},
+{cat:'Technical',q:'Security logging and monitoring',why:'Maintain enough visibility to detect suspicious activity and investigate events.',evidence:'Logging configuration, alerting/monitoring reports, review procedures.',priority:'high'},
+{cat:'Testing & Validation',q:'Periodic safeguard testing',why:'Verify that important controls actually work and remain effective.',evidence:'Test results, vulnerability/security review notes, remediation records.',priority:'medium'},
+{cat:'Recovery',q:'Tested backups',why:'Maintain backups that can restore critical data and operations.',evidence:'Backup job reports, restore-test record, recovery procedure.',priority:'critical'},
+{cat:'People',q:'Recurring security training',why:'Train employees and seasonal staff on phishing, sensitive data handling and security procedures.',evidence:'Training completion records, phishing simulation results, training policy.',priority:'high'},
+{cat:'Physical & Data Handling',q:'Physical safeguards',why:'Protect paper records, removable media and office access as well as technology.',evidence:'Office access procedures, locked-storage practices, clean-desk/record-handling rules.',priority:'medium'},
+{cat:'Data Lifecycle',q:'Retention and secure disposal',why:'Avoid keeping sensitive information indefinitely and dispose of it securely when no longer needed.',evidence:'Retention schedule, shredding/destruction procedure, device disposal records.',priority:'medium'},
+{cat:'Vendors',q:'Service-provider security review',why:'Evaluate providers that handle or can access sensitive customer information.',evidence:'Vendor list, security review notes, questionnaires or due-diligence records.',priority:'high'},
+{cat:'Vendors',q:'Contractual vendor safeguards',why:'Document appropriate security expectations for relevant service providers.',evidence:'Contracts, DPAs/security addenda, vendor security clauses.',priority:'high'},
+{cat:'Incident Response',q:'Written incident / data theft response plan',why:'Define roles, containment, communications, reporting and post-incident improvement before an event occurs.',evidence:'Written incident response plan, contact tree, reporting checklist, tabletop notes.',priority:'critical'},
+{cat:'Program Maintenance',q:'Periodic WISP review and updates',why:'Keep the program aligned with changes in staff, systems, vendors, threats and business operations.',evidence:'Annual/periodic review record, change log, post-incident or material-change updates.',priority:'high'},
+{cat:'Governance',q:'Periodic written management reporting',why:'Give leadership a documented view of risks, safeguards, test results, incidents and needed changes.',evidence:'Annual security report, management memo, meeting minutes or written program summary.',priority:'medium'}
 ];
-const raw=localStorage.getItem('wispcheckResults');
-if(!raw){location.href='/';}
-const data=JSON.parse(raw||'{"answers":[]}');
-const answers=data.answers||[];
-const total=answers.reduce((a,b)=>a+b,0), max=questions.length*2, pct=Math.round((total/max)*100);
+const raw=localStorage.getItem('wispcheckResults');if(!raw){location.href='/assessment/';}
+const data=JSON.parse(raw||'{"answers":[]}');const answers=data.answers||[];
+if(answers.length!==questions.length){location.href='/assessment/';}
+const total=answers.reduce((a,b)=>a+(Number.isFinite(b)?b:0),0),max=questions.length*2,pct=Math.round((total/max)*100);
 document.getElementById('score').textContent=`${pct}%`;
-const headline=document.getElementById('headline');
-headline.textContent=pct>=85?'Strong baseline. Verify the details.':pct>=65?'Several safeguards need attention.':'Material gaps deserve priority.';
-const results=document.getElementById('results');
-questions.forEach((item,i)=>{
- const v=answers[i]??0; const cls=v===2?'good':v===1?'mid':'bad'; const label=v===2?'In place':v===1?'Partial / unsure':'Gap';
- const row=document.createElement('div'); row.className='result';
- row.innerHTML=`<div><span class="eyebrow">${item.cat}</span><h3>${item.q}</h3></div><p>${v===2?'Keep the control current and verify it periodically.':item.why}</p><span class="pill ${cls}">${label}</span>`;
- results.appendChild(row);
-});
-const missing=answers.filter(v=>v===0).length, partial=answers.filter(v=>v===1).length;
-document.getElementById('recommendation').textContent=missing?`You reported ${missing} clear gap${missing===1?'':'s'} and ${partial} partial or uncertain control${partial===1?'':'s'}. Address missing safeguards first, then verify anything marked partial.`:partial?`No safeguards were marked fully missing, but ${partial} control${partial===1?'':'s'} should be verified or completed before treating the program as mature.`:'Your answers indicate a strong baseline. The next step is to verify evidence, review the written program, and confirm the controls remain current.';
+const headline=document.getElementById('headline');headline.textContent=pct>=90?'Strong self-reported baseline — now verify the evidence.':pct>=75?'Good foundation, with several controls to verify or strengthen.':pct>=55?'Meaningful WISP gaps need a structured remediation plan.':'Material gaps deserve prompt attention.';
+const missing=answers.filter(v=>v===0).length,partial=answers.filter(v=>v===1).length;
+document.getElementById('recommendation').textContent=missing?`You reported ${missing} clear gap${missing===1?'':'s'} and ${partial} partial/uncertain control${partial===1?'':'s'}. Close critical missing safeguards first, then work through high-priority gaps and verify anything marked partial.`:partial?`No controls were marked fully missing, but ${partial} control${partial===1?'':'s'} remain partial or uncertain. Treat those as verification work before considering the program mature.`:'Every control was marked in place. That is a strong self-reported baseline; the important next step is to verify documentation, technical evidence, testing and ongoing maintenance.';
+const rank={critical:0,high:1,medium:2};const gapItems=questions.map((item,i)=>({...item,v:answers[i]??0,i})).filter(x=>x.v<2).sort((a,b)=>(rank[a.priority]-rank[b.priority])||(a.v-b.v));
+const priority=document.getElementById('prioritySummary');if(priority){const top=gapItems.slice(0,3);priority.innerHTML=top.length?top.map((item,n)=>`<article><span>0${n+1}</span><h3>${item.q}</h3><p><strong>${item.v===0?'Gap':'Partial / unsure'} · ${item.priority.toUpperCase()} priority.</strong> ${item.why}</p></article>`).join(''):`<article><span>✓</span><h3>No self-reported gaps</h3><p>Use the detailed results below as an evidence-verification checklist and schedule the next program review.</p></article>`;}
+const results=document.getElementById('results');questions.forEach((item,i)=>{const v=answers[i]??0;const cls=v===2?'good':v===1?'mid':'bad';const label=v===2?'In place':v===1?'Partial / unsure':'Gap';const row=document.createElement('div');row.className='result';row.innerHTML=`<div><span class="eyebrow">${item.cat} · ${item.priority} priority</span><h3>${item.q}</h3></div><p>${v===2?'Keep the control current and verify it periodically.':item.why}<br><small><strong>Evidence to verify:</strong> ${item.evidence}</small></p><span class="pill ${cls}">${label}</span>`;results.appendChild(row);});
 document.getElementById('year').textContent=new Date().getFullYear();
